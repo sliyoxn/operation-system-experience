@@ -1,8 +1,13 @@
 class MemoryPartition {
     size : number = 0;
     status : Status = Status.Idle;
-    constructor(size : number) {
+    msg : string = "";
+    taskId : number;
+    constructor(size : number, taskId : number = 0, status : Status = 0, msg : string = "") {
         this.size = size;
+        this.msg = msg;
+        this.taskId = taskId;
+        this.status = status;
     }
 }
 

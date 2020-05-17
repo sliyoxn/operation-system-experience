@@ -80,6 +80,7 @@ class LinkedList<T> {
                 if (this.length === 1) {
                     this.tail = null;
                 } else {
+                    this.head = this.head?.next!;
                     this.head!.prev = null;
                 }
             } else if (position === this.length - 1) {
@@ -87,6 +88,7 @@ class LinkedList<T> {
                 this.tail = current!.prev;
                 this.tail!.next = null;
             } else {
+                console.log("rua");
                 while (index++ < position) {
                     previous = current!;
                     current = current!.next;
@@ -194,6 +196,15 @@ class LinkedList<T> {
         return null;
     }
 
+    getElementByIndex(index : number) : T | null{
+        if ((this.length < index) || (index < 0)) return null;
+        let current : ListNode<T> = this.head!;
+        while (index--) {
+            current = current.next!;
+        }
+        return current ? current.element! : null;
+    }
+
 
     * [Symbol.iterator]() {
         let current = this.head;
@@ -208,9 +219,9 @@ class LinkedList<T> {
         // @ts-ignore
         let arr : Array<T> = [...this];
         arr.sort(fn);
-        console.log(arr);
+        // console.log(arr);
         let newList = this.generateLinkList(arr);
-        console.log(newList);
+        // console.log(newList);
         this.head = newList.head;
         this.tail = newList.tail;
         this.length = newList.length;
@@ -225,6 +236,29 @@ class LinkedList<T> {
     }
 
 
+    getLength() {
+        return this.length;
+    }
+
+    searchNode(fn : (element : T) => boolean) : {
+        index : number,
+        element : T
+    } | null {
+        let current : ListNode<T> = this.head!;
+        let index = 0;
+        let length = this.length;
+        while (index < this.length) {
+            if (fn(current.element!)) {
+                return {
+                    index : index,
+                    element : current.element!
+                }
+            }
+            current = current.next!;
+            index++;
+        }
+        return null;
+    }
 
 
 }

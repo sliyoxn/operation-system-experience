@@ -1,3 +1,13 @@
+import {Status} from "@/bean/MemoryPartition";
+import {Status} from "@/bean/MemoryPartition";
+import {Status} from "@/bean/MemoryPartition";
+import {Status} from "@/bean/MemoryPartition";
+import {Status} from "@/bean/MemoryPartition";
+import {Status} from "@/bean/MemoryPartition";
+import {Status} from "@/bean/MemoryPartition";
+import {Status} from "@/bean/MemoryPartition";
+import {Status} from "@/bean/MemoryPartition";
+import {EventType} from "@/bean/Task";
 <template>
     <div class="wrapper AboutView">
         <div class="form-box">
@@ -32,6 +42,16 @@
                 </el-form-item>
             </el-form>
         </div>
+        <div class="form-box" >
+            <el-form :inline="true" class="demo-form-inline">
+                <el-form-item label="算法类型">
+                    <el-select v-model="useType" :disabled="disabled">
+                        <el-option :value="0" label="首次适应算法">首次适应算法</el-option>
+                        <el-option :value="1" label="最佳适应算法">最佳适应算法</el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+        </div>
         <div class="table-container" style="display: flex">
             <el-table :data="taskData" style="width: 100%" max-height="500">
                 <el-table-column align="center" prop="taskName" label="作业名"></el-table-column>
@@ -56,7 +76,7 @@
                     height : `${memory.size / 640 * 500}px`,
                     lineHeight : `${memory.size / 640 * 500}px`
                 }" v-for="(memory, index) in memoryLinkedList">
-                    {{memory.size}}
+                    {{memory.size}}  {{memory.msg}}
                 </div>
             </div>
             <el-table :data="executeEventData" style="width: 40%" max-height="500" :row-class-name="tableRowClassName">
@@ -69,7 +89,7 @@
             </el-table>
         </div>
         <div style="margin-top: 20px; margin-bottom: 50px">
-            <el-button type="primary">执行</el-button>
+            <el-button type="primary" @click="execute">执行</el-button>
         </div>
     </div>
 
@@ -80,7 +100,7 @@
     import LinkedList from "@/bean/LinkList";
     import Task, {EventType, TaskEvent} from "@/bean/Task";
     import EnhancedArray from "@/bean/EnhancedArray";
-    import MemoryPartition from "@/bean/MemoryPartition";
+    import MemoryPartition, {Status} from "@/bean/MemoryPartition";
 
     type ExecuteEventModel = {
         taskName : string,
@@ -110,7 +130,9 @@
         private taskData : Array<Task> = new EnhancedArray();
         private executeEventData : Array<ExecuteEventModel> = new EnhancedArray();
         private memoryLinkedList : LinkedList<MemoryPartition> = new LinkedList();
+        private useType : number = 1;
 
+        private disabled : boolean = false;
 
         mounted() {
             this._addTask("作业1", 130);
@@ -138,10 +160,8 @@
         // @ts-ignore
         tableRowClassName({row, rowIndex}) {
             if (this.index == rowIndex) {
-                console.log("warn", this.index);
                 return 'warning-row';
             } else if (this.index > rowIndex) {
-                console.log("success");
                 return 'success-row'
             }
             return '';
@@ -201,10 +221,71 @@
             }
         }
 
-
-
-
-
+        execute() {
+            if (this.index >= this.executeEventData.length) {
+                this.$message.warning("任务已经执行完了哦");
+                return;
+            }
+            if (this.index === 0) {
+                this.disabled = true;
+            }
+            let curTask = this.executeEventData[this.index];
+            let task = this.nameToTaskMap.get(curTask.taskName)!;
+            let eventType = curTask.eventType;
+            if (eventType === EventType.ApplyMemory) {
+                let insertIndex = 0;
+                let flag = false;
+                for (let i = 0; i < this.memoryLinkedList.getLength(); i++, insertIndex ++) {
+                    let memory = this.memoryLinkedList.getElementByIndex(i);
+                    if (memory!.size > task.taskMemory && memory?.status === Status.Idle) {
+                        memory!.size -= task.taskMemory;
+                        flag = true;
+                        break;
+                    }
+                }
+                if (flag) {
+                    this.memoryLinkedList.insert(insertIndex, new MemoryPartition(task!.taskMemory, task!.taskId, Status.Using, task!.taskName));
+                } else {
+                    this.$message.warning("内存不足, 无法分配");
+                }
+            } else {
+                let res = this.memoryLinkedList.searchNode((node) => {
+                    return node.taskId === task.taskId;
+                });
+                let index : number = res?.index!;
+                let element : MemoryPartition = res?.element!;
+                let prevMemory = this.memoryLinkedList.getElementByIndex(index - 1);
+                let nextMemory = this.memoryLinkedList.getElementByIndex(index + 1);
+                element.status = Status.Idle;
+                element.msg = "";
+                if (prevMemory?.status === Status.Idle) {
+                    element.size += prevMemory.size;
+                    console.log(this.memoryLinkedList.indexOf(prevMemory), index - 1);
+                    let flag = !!this.memoryLinkedList.remove(prevMemory);
+                    if (flag) {
+                        console.log("没有移除");
+                    }
+                }
+                if (nextMemory?.status === Status.Idle) {
+                    element.size += nextMemory.size;
+                    this.memoryLinkedList.remove(nextMemory);
+                }
+            }
+            if (this.useType === 1) {
+                this.memoryLinkedList.sort((memoryA, memoryB) => {
+                    return memoryA.size - memoryB.size;
+                });
+                // for (let i = 0; i < this.memoryLinkedList.getLength() - 1; i++) {
+                //     let memory = this.memoryLinkedList.getElementByIndex(i)!;
+                //     let nextMemory = this.memoryLinkedList.getElementByIndex(i + 1)!;
+                //     if ((memory?.status === Status.Idle) && (nextMemory.status === Status.Idle)) {
+                //         memory.size += nextMemory.size;
+                //         this.memoryLinkedList.remove(nextMemory);
+                //     }
+                // }
+            }
+            this.index ++;
+        }
 
 
     }
@@ -212,4 +293,17 @@
 
 <style lang="less" scoped>
 
+
+</style>
+
+<style lang="less">
+    .AboutView {
+        .el-table .warning-row {
+            background: oldlace;
+        }
+
+        .el-table .success-row {
+            background: #f0f9eb;
+        }
+    }
 </style>

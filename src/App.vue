@@ -5,9 +5,10 @@
             |
             <router-link to="/about">动态分区分配方式</router-link>
         </div>
-        <keep-alive>
-            <router-view/>
-        </keep-alive>
+<!--        <keep-alive>-->
+<!--            <router-view/>-->
+<!--        </keep-alive>-->
+        <router-view/>
     </div>
 </template>
 

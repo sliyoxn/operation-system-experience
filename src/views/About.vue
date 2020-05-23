@@ -1,13 +1,3 @@
-import {Status} from "@/bean/MemoryPartition";
-import {Status} from "@/bean/MemoryPartition";
-import {Status} from "@/bean/MemoryPartition";
-import {Status} from "@/bean/MemoryPartition";
-import {Status} from "@/bean/MemoryPartition";
-import {Status} from "@/bean/MemoryPartition";
-import {Status} from "@/bean/MemoryPartition";
-import {Status} from "@/bean/MemoryPartition";
-import {Status} from "@/bean/MemoryPartition";
-import {EventType} from "@/bean/Task";
 <template>
     <div class="wrapper AboutView">
         <div class="form-box">
@@ -166,7 +156,6 @@ import {EventType} from "@/bean/Task";
             }
             return '';
         }
-
         addExecuteEvent() {
             let executeEvent = this._clone(this.newExecuteEvent);
             let task = this.nameToTaskMap.get(executeEvent.taskName);
@@ -261,10 +250,7 @@ import {EventType} from "@/bean/Task";
                 if (prevMemory?.status === Status.Idle) {
                     element.size += prevMemory.size;
                     console.log(this.memoryLinkedList.indexOf(prevMemory), index - 1);
-                    let flag = !!this.memoryLinkedList.remove(prevMemory);
-                    if (flag) {
-                        console.log("没有移除");
-                    }
+                    this.memoryLinkedList.remove(prevMemory);
                 }
                 if (nextMemory?.status === Status.Idle) {
                     element.size += nextMemory.size;
@@ -272,17 +258,24 @@ import {EventType} from "@/bean/Task";
                 }
             }
             if (this.useType === 1) {
+                let prevLength = this.memoryLinkedList.getLength();
                 this.memoryLinkedList.sort((memoryA, memoryB) => {
                     return memoryA.size - memoryB.size;
                 });
-                // for (let i = 0; i < this.memoryLinkedList.getLength() - 1; i++) {
-                //     let memory = this.memoryLinkedList.getElementByIndex(i)!;
-                //     let nextMemory = this.memoryLinkedList.getElementByIndex(i + 1)!;
-                //     if ((memory?.status === Status.Idle) && (nextMemory.status === Status.Idle)) {
-                //         memory.size += nextMemory.size;
-                //         this.memoryLinkedList.remove(nextMemory);
-                //     }
-                // }
+                let curLength = 0;
+                do {
+                    prevLength = this.memoryLinkedList.getLength();
+                    for (let i = 0; i < this.memoryLinkedList.getLength() - 1; i++) {
+                        let memory = this.memoryLinkedList.getElementByIndex(i)!;
+                        let nextMemory = this.memoryLinkedList.getElementByIndex(i + 1)!;
+                        if ((memory?.status === Status.Idle) && (nextMemory.status === Status.Idle)) {
+                            memory.size += nextMemory.size;
+                            this.memoryLinkedList.remove(nextMemory);
+                        }
+                    }
+                    curLength = this.memoryLinkedList.getLength();
+                }while (curLength !== prevLength);
+
             }
             this.index ++;
         }

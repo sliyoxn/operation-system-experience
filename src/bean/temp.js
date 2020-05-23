@@ -15,7 +15,7 @@ function DoublyLinkedList() {
 			tail = node; //NEW
 		} else {
 			//NEW
-			tail.next = node;
+			tail._exeNext = node;
 			node.prev = tail;
 			tail = node;
 		}

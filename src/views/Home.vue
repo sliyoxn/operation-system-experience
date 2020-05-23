@@ -26,6 +26,8 @@
                 <el-table-column align="center" prop="executeTime" label="运行时间"></el-table-column>
                 <el-table-column align="center" prop="startTime" label="开始执行时间"></el-table-column>
                 <el-table-column align="center" prop="endTime" label="停止执行时间"></el-table-column>
+                <el-table-column align="center" prop="turnTime" label="周转时间"></el-table-column>
+                <el-table-column align="center" prop="withTurnTime" label="带权周转时间"></el-table-column>
                 <el-table-column align="center" label="操作">
                     <template slot-scope="scope">
                         <el-button type="text" @click="handleDelete(scope.row)">删除</el-button>
@@ -38,6 +40,10 @@
                 <el-table-column align="center" prop="time" label="时间"></el-table-column>
                 <el-table-column align="center" prop="curProcessName" label="正在执行的进程"></el-table-column>
             </el-table>
+        </div>
+        <div>
+            <p>平均周转时间 : {{avgTurnTime}}</p>
+            <p>平均等待时间 : {{avgWaitTime}}</p>
         </div>
     </div>
 
@@ -58,7 +64,8 @@
 
         public readonly executeResult = new EnhancedArray();
 
-
+        private avgWaitTime = 0;
+        private avgTurnTime = 0;
 
         onAdd() {
             this.processData.push(this.newProcessData.clone());
@@ -89,7 +96,10 @@
             });
             while ((waitQueue.length || executeQueue.length || current) && (loopCount < 1000)) {
                 while (waitQueue.length && waitQueue.getTop().arriveTime <= currentTime) {
-                    executeQueue.push(<Process>waitQueue.shift())
+                    executeQueue.push(<Process>waitQueue.shift());
+                    executeQueue.sort((a : Process, b : Process) => {
+                        return a.executeTime - b.executeTime;
+                    })
                 }
                 // 空闲
                 if (!current) {
@@ -113,6 +123,17 @@
                 loopCount ++;
             }
             this.executeResult.pop();
+            let avgWaitTime = 0;
+            let avgTurnTime = 0;
+            for (let i = 0; i < this.processData.length; i++) {
+                let progress = this.processData[i];
+                avgWaitTime += progress.waitTime;
+                avgTurnTime += progress.turnTime;
+            }
+            avgWaitTime /= this.processData.length;
+            avgTurnTime /= this.processData.length;
+            this.avgTurnTime = avgTurnTime;
+            this.avgWaitTime = avgWaitTime;
         }
 
     }

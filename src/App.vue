@@ -1,9 +1,9 @@
 <template>
     <div id="app">
         <div id="nav">
-            <router-link to="/">进程调度</router-link>
-            |
-            <router-link to="/about">动态分区分配方式</router-link>
+            <router-link to="/">进程调度</router-link> |
+            <router-link to="/about">动态分区分配方式</router-link> |
+            <router-link to="/info">调页存储管理方式</router-link>
         </div>
 <!--        <keep-alive>-->
 <!--            <router-view/>-->

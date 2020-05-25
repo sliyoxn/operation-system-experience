@@ -92,10 +92,12 @@
         }
 
         execute() {
+            // 重置
             this.executeStatus.length = 0;
             this.memory.length = 0;
             this.instructionSequence.length = 0;
             this.generateCount = 0;
+            // 生成指令序列
             this._generateInstructionSequence();
             let method : ReplaceMethod = this.replaceMethod;
             switch (method) {

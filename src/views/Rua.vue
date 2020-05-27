@@ -190,7 +190,6 @@
             this.workQueueIndex = 0;
             while (true) {
                 if (this.curWork) {
-                    // console.log(JSON.parse(JSON.stringify(this.taskStack)));
                     if (!this.taskStack.getTop() || (this.taskStack.getTop().work !== this.curWork)) {
                         this.taskStack.push(new Task(this.curWork, this.workQueues[this.workQueueIndex].timeSlice));
                     }
@@ -233,7 +232,6 @@
             let workArr = this.waitWork[curTime];
             if (workArr) {
                 this.workQueues.getTop().addWork(...workArr);
-                console.log(JSON.parse(JSON.stringify(this.workQueues.getTop().queue)));
             }
         }
 

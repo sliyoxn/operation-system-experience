@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter, {RouteConfig} from 'vue-router'
 import Home from '../views/Home.vue'
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
     {
@@ -19,7 +19,12 @@ const routes: Array<RouteConfig> = [
         path : '/info',
         name : 'Info',
         component : () => import('../views/Info.vue')
-    }
+    },
+    {
+        path : '/rua',
+        name : 'Rua',
+        component : () => import('../views/Rua.vue')
+    },
 ];
 
 const router = new VueRouter({

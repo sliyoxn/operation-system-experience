@@ -14,6 +14,10 @@ class EnhancedArray<T> extends Array<T>{
         return this[0];
     };
 
+    getEnd = () => {
+        return this[this.length - 1];
+    };
+
     isEmpty = () => {
         return Boolean(this.length);
     };
